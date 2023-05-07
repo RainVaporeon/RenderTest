@@ -1,19 +1,28 @@
 package com.spiritlight.rendertest.math;
 
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Objects;
 
 
 /**
  * An immutable class representing a matrix. The class provides some
  * useful methods to do matrix calculations, and the underlying elements
  * may be iterated via the iterator method.
+ * <p></p>
+ * A row is denoted by the size of the elements, and the
+ * column is determined by the elements in each row.
  */
 public class Matrix implements Iterable<MatrixElement> {
     private final MatrixElement[] elements;
-    private final int rows;
-    private final int columns;
+
+    // these numbers are tracked for sake of accessibility
+    public final int rows;
+    public final int columns;
 
     /**
      * Initializes a Matrix instance with given element.
@@ -30,6 +39,7 @@ public class Matrix implements Iterable<MatrixElement> {
         this.columns = elements[0].length;
     }
 
+    @Contract("_ -> new")
     public static Matrix ofArray(double[][] array) {
         MatrixElement[] e = new MatrixElement[array.length];
         int i = 0;
@@ -63,6 +73,7 @@ public class Matrix implements Iterable<MatrixElement> {
         return elements.clone(); // We clone here for some sort of immutability
     }
 
+    @Contract(value = "null -> fail; _ -> new", pure = true)
     public Matrix multiply(Matrix that) {
         if(this.columns != that.rows) throw new IllegalArgumentException("rows mismatch on multiplying matrix");
         double[][] result = new double[rows][that.columns];
@@ -76,6 +87,18 @@ public class Matrix implements Iterable<MatrixElement> {
         return Matrix.ofArray(result);
     }
 
+    @Contract(value = "_ -> new", pure = true)
+    public Matrix scale(double scale) {
+        double[][] val = toArray();
+        double[][] other = new double[val.length][val[0].length];
+        for(int i = 0; i < val.length; i++) {
+            for(int j = 0; j < val[0].length; j++) {
+                other[i][j] = val[i][j] * scale;
+            }
+        }
+        return Matrix.ofArray(other);
+    }
+
     public double[][] toArray() {
         double[][] ret = new double[rows][columns];
 
@@ -84,6 +107,11 @@ public class Matrix implements Iterable<MatrixElement> {
         }
 
         return ret;
+    }
+
+    @Contract(value = "_, _ -> new", pure = true)
+    public static @NotNull Builder builder(int rows, int cols) {
+        return new Builder(rows, cols);
     }
 
     @Override
@@ -128,6 +156,7 @@ public class Matrix implements Iterable<MatrixElement> {
          * always initiate.
          */
         public Builder setRows(int rows) {
+            checkRange(rows);
             resize(rows, this.columns);
             this.rows = rows;
             return this;
@@ -142,6 +171,7 @@ public class Matrix implements Iterable<MatrixElement> {
          * always initiate.
          */
         public Builder setColumns(int columns) {
+            checkRange(columns);
             resize(this.rows, columns);
             this.columns = columns;
             return this;
@@ -154,7 +184,7 @@ public class Matrix implements Iterable<MatrixElement> {
          * @return The builder itself, with cursor incremented by one.
          */
         public Builder putRow(double... elements) {
-            return putRow(cursor++, elements);
+            return setRow(cursor++, elements);
         }
 
         /**
@@ -163,8 +193,8 @@ public class Matrix implements Iterable<MatrixElement> {
          * @param row The row to assign the elements to
          * @return The builder itself, with cursor incremented by one.
          */
-        public Builder putRow(int row, double... elements) {
-            if(checkRange(row)) throw new IndexOutOfBoundsException(rows);
+        public Builder setRow(int row, double... elements) {
+            if(row < 0 || row > rows) throw new IndexOutOfBoundsException(row);
             element[row] = elements;
             return this;
         }
@@ -189,7 +219,7 @@ public class Matrix implements Iterable<MatrixElement> {
          * @throws IllegalArgumentException if num is less or equal to 0
          */
         private boolean checkRange(int num) {
-            if(num <= 0) throw new IllegalArgumentException("row and column has to be longer than 0");
+            if(num < 0) throw new IllegalArgumentException("row and column has to be longer than 0");
             return num > rows || num > columns;
         }
 
@@ -205,5 +235,20 @@ public class Matrix implements Iterable<MatrixElement> {
 
             element = create;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Matrix that = (Matrix) o;
+        return rows == that.rows && columns == that.columns && Arrays.equals(elements, that.elements);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(rows, columns);
+        result = 31 * result + Arrays.hashCode(elements);
+        return result;
     }
 }
