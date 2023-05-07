@@ -56,7 +56,6 @@ public class ExampleFrame extends JFrame {
 
             Matrix transform = headingTransform.multiply(pitchTransform);
 
-            g.translate(this.getWidth() / 2, this.getHeight() / 2);
             g.setColor(Color.WHITE);
 
             BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
