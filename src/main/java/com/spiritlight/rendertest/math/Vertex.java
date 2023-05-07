@@ -27,6 +27,30 @@ public class Vertex extends Point {
         return z;
     }
 
+    public Vertex addX(double x) {
+        return add(x, 0, 0);
+    }
+
+    public Vertex addY(double y) {
+        return add(0, y, 0);
+    }
+
+    public Vertex addZ(double z) {
+        return add(0, 0, z);
+    }
+
+    public Vertex add(Vertex other) {
+        return add(other.x, other.y, other.z);
+    }
+
+    public Vertex add(double x, double y, double z) {
+        return new Vertex(this.x + x, this.y + y, this.z + z);
+    }
+
+    public Vertex scale(double scalar) {
+        return new Vertex(this.x * scalar, this.y * scalar, this.z * scalar);
+    }
+
     public Vertex transform(Matrix matrix) {
         if(matrix.columns != 3 || matrix.rows != 3) throw new IllegalArgumentException("matrix has to be 3x3");
 

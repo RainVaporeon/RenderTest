@@ -208,6 +208,10 @@ public class Matrix implements Iterable<MatrixElement> {
             return this;
         }
 
+        /**
+         * Builds the matrix. All uninitialized parts are assigned as 0.
+         * @return The matrix built
+         */
         public Matrix build() {
             return Matrix.ofArray(element);
         }
