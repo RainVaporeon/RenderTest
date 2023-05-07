@@ -8,6 +8,7 @@ import com.spiritlight.rendertest.utils.MathHelper;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 public class ExampleFrame extends JFrame {
 
@@ -60,6 +61,8 @@ public class ExampleFrame extends JFrame {
 
             BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
+            double[] buffer = new double[image.getHeight() * image.getWidth()];
+            Arrays.fill(buffer, Double.NEGATIVE_INFINITY);
 
             for (Triangle t : Main.list) {
                 // transform the vertices and then translate
@@ -90,8 +93,13 @@ public class ExampleFrame extends JFrame {
                                 ((y - v1.getY()) * (v3.getX() - v1.getX()) + (v3.getY() - v1.getY()) * (v1.getX() - x)) / triArea2D;
                         double b3 =
                                 ((y - v2.getY()) * (v1.getX() - v2.getX()) + (v1.getY() - v2.getY()) * (v2.getX() - x)) / triArea2D;
+                        double depth = b1 * v1.getZ() + b2 * v2.getZ() + b3 * v3.getZ();
+                        int zIndex = y * image.getWidth() + x;
                         if (b1 >= 0 && b1 <= 1 && b2 >= 0 && b2 <= 1 && b3 >= 0 && b3 <= 1) {
-                            image.setRGB(x, y, t.getColor().getRGB());
+                            if(buffer[zIndex] < depth) {
+                                image.setRGB(x, y, t.getColor().getRGB());
+                                buffer[zIndex] = depth;
+                            }
                         }
                     }
                 }
