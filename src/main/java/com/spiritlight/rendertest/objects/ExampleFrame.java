@@ -5,10 +5,12 @@ import com.spiritlight.rendertest.math.Matrix;
 import com.spiritlight.rendertest.math.Vertex;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
-public class ExampleFrame extends JFrame {
+public class ExampleFrame extends JFrame implements ChangeListener {
 
     protected JSlider slider = new JSlider(0, 360, 180);
 
@@ -18,7 +20,6 @@ public class ExampleFrame extends JFrame {
         Container pane = this.getContentPane();
         pane.setLayout(new BorderLayout());
 
-
         pane.add(slider, BorderLayout.SOUTH);
 
         pane.add(pitchSlider, BorderLayout.EAST);
@@ -26,6 +27,12 @@ public class ExampleFrame extends JFrame {
         pane.add(new ExamplePanel(), BorderLayout.CENTER);
 
         this.setSize(400, 400);
+        slider.addChangeListener(this);
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        this.repaint();
     }
 
     private class ExamplePanel extends JPanel {
