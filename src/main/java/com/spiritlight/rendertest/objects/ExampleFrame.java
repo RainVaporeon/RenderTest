@@ -61,6 +61,7 @@ public class ExampleFrame extends JFrame {
 
             BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
+            // Z-Buffer array
             double[] buffer = new double[image.getHeight() * image.getWidth()];
             Arrays.fill(buffer, Double.NEGATIVE_INFINITY);
 
@@ -72,6 +73,18 @@ public class ExampleFrame extends JFrame {
                         .add(this.getWidth() / 2d, this.getHeight() / 2d, 0);
                 Vertex v3 = t.getPoint3().transform(transform)
                         .add(this.getWidth() / 2d, this.getHeight() / 2d, 0);
+
+                Vertex ab = v2.subtract(v1);
+                Vertex ac = v3.subtract(v1);
+                Vertex normal = Vertex.of(
+                        ab.getY() * ac.getZ() - ab.getZ() * ac.getY(),
+                        ab.getZ() * ac.getX() - ab.getX() * ac.getZ(),
+                        ab.getX() * ac.getY() - ab.getY() * ac.getX()
+                );
+
+                normal = normal.scale(1.0 / normal.normalLength());
+
+                double angle = Math.cos(normal.getZ());
 
                 int minX = (int) Math.max(0, Math.ceil(MathHelper.min(v1.getX(), v2.getX(), v3.getX())));
                 int maxX = (int) Math.min(this.getWidth() - 1, Math.floor(MathHelper.max(v1.getX(), v2.getX(), v3.getX())));
@@ -94,10 +107,12 @@ public class ExampleFrame extends JFrame {
                         double b3 =
                                 ((y - v2.getY()) * (v1.getX() - v2.getX()) + (v1.getY() - v2.getY()) * (v2.getX() - x)) / triArea2D;
                         double depth = b1 * v1.getZ() + b2 * v2.getZ() + b3 * v3.getZ();
+
                         int zIndex = y * image.getWidth() + x;
+
                         if (b1 >= 0 && b1 <= 1 && b2 >= 0 && b2 <= 1 && b3 >= 0 && b3 <= 1) {
                             if(buffer[zIndex] < depth) {
-                                image.setRGB(x, y, t.getColor().getRGB());
+                                image.setRGB(x, y, t.getShade(angle).getRGB());
                                 buffer[zIndex] = depth;
                             }
                         }

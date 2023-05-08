@@ -21,6 +21,18 @@ public class Triangle {
         return color;
     }
 
+    private static final float LINEAR_CONSTANT = 2.4F;
+    public Color getShade(double shade) {
+        double redL = Math.pow(color.getRed(), LINEAR_CONSTANT) * shade;
+        double greenL = Math.pow(color.getGreen(), LINEAR_CONSTANT) * shade;
+        double blueL = Math.pow(color.getBlue(), LINEAR_CONSTANT) * shade;
+
+        int red = (int) Math.pow(redL, 1 / LINEAR_CONSTANT);
+        int green = (int) Math.pow(greenL, 1 / LINEAR_CONSTANT);
+        int blue = (int) Math.pow(blueL, 1 / LINEAR_CONSTANT);
+        return new Color(red, green, blue);
+    }
+
     public void setColor(Color color) {
         this.color = color;
     }

@@ -36,6 +36,6 @@ public class Main {
 
         frame.setTitle("Example pane");
         frame.setVisible(true);
-        
+
     }
 }

@@ -26,6 +26,25 @@ public class MatrixElement implements Iterable<Double> {
         return elements.clone();
     }
 
+    // Returns a raw representation of the elements, should save some time
+    // doing internal operations so cloning array is not needed
+    double[] elements() {
+        return this.elements;
+    }
+
+    public MatrixElement multiply(MatrixElement other) {
+        if(this.length != other.length) throw new IllegalArgumentException("element length mismatch");
+        double[] d = new double[length];
+        for(int i = 0; i < length; i++) {
+            d[i] = this.elements[i] * other.elements[i];
+        }
+        return new MatrixElement(d);
+    }
+
+    public static MatrixElement of(double... elements) {
+        return new MatrixElement(elements);
+    }
+
     @Override
     public Iterator<Double> iterator() {
         return Arrays.stream(elements).boxed().iterator();

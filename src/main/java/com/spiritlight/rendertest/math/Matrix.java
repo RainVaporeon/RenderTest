@@ -1,12 +1,11 @@
 package com.spiritlight.rendertest.math;
 
 
+import com.spiritlight.rendertest.math.exceptions.MatrixException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
@@ -18,7 +17,7 @@ import java.util.Objects;
  * column is determined by the elements in each row.
  */
 public class Matrix implements Iterable<MatrixElement> {
-    private final MatrixElement[] elements;
+    protected final MatrixElement[] elements;
 
     // these numbers are tracked for sake of accessibility
     public final int rows;
@@ -99,6 +98,15 @@ public class Matrix implements Iterable<MatrixElement> {
         return Matrix.ofArray(other);
     }
 
+    /**
+     * Converts this matrix to an array.
+     * <p>
+     *     The array is constructed such that when supplying the output
+     *     into {@link Matrix#ofArray(double[][])}, the output matrix
+     *     is equal to this matrix.
+     * </p>
+     * @return A 2D array representing this matrix
+     */
     public double[][] toArray() {
         double[][] ret = new double[rows][columns];
 
@@ -109,6 +117,23 @@ public class Matrix implements Iterable<MatrixElement> {
         return ret;
     }
 
+    /**
+     * Creates a new matrix that is transposed by this matrix.
+     * @return A new matrix that's the transpose of the current matrix
+     */
+    public Matrix transpose() {
+        double[][] val = new double[columns][rows];
+        for(int i = 0; i < columns; i++) {
+            // safe to use here as the array provided is copied instead of consumed
+            val[i] = this.getColumn(i).elements();
+        }
+        return Matrix.ofArray(val);
+    }
+
+    public boolean isSquare() {
+        return rows == columns;
+    }
+
     @Contract(value = "_, _ -> new", pure = true)
     public static @NotNull Builder builder(int rows, int cols) {
         return new Builder(rows, cols);
@@ -116,17 +141,17 @@ public class Matrix implements Iterable<MatrixElement> {
 
     @Override
     public Iterator<MatrixElement> iterator() {
-        return Arrays.stream(elements).iterator();
+        return Arrays.stream(elements.clone()).iterator();
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder("{");
+        StringBuilder builder = new StringBuilder();
         for(MatrixElement element : this) {
-            builder.append(Arrays.toString(element.getElements()));
+            builder.append(Arrays.toString(element.elements()));
             builder.append("\n");
         }
-        builder.replace(builder.length() - 1, builder.length(), "}");
+        builder.replace(builder.length() - 1, builder.length(), "");
         return builder.toString();
     }
 
@@ -135,7 +160,13 @@ public class Matrix implements Iterable<MatrixElement> {
         private int rows;
         private int columns;
 
-        // tracking which row was modified last
+        /**
+         * The cursor pointing to the row {@link Builder#putRow(double...)}
+         * should modify. By contract, this cursor is never less than 0,
+         * and is never larger or equal to the maximum rows specified
+         * by the property {@link Builder#rows}, though it can be modified
+         * to break the contract via {@link Builder#setCursor(int)}.
+         */
         private int cursor = 0;
 
         // we'll be using the factory method so this should suffice
