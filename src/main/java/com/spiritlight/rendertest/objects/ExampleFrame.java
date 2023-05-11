@@ -3,12 +3,15 @@ package com.spiritlight.rendertest.objects;
 import com.spiritlight.rendertest.Main;
 import com.spiritlight.rendertest.math.Matrix;
 import com.spiritlight.rendertest.math.Vertex;
+import com.spiritlight.rendertest.utils.AutoScaler;
 import com.spiritlight.rendertest.utils.MathHelper;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExampleFrame extends JFrame {
 
@@ -16,21 +19,30 @@ public class ExampleFrame extends JFrame {
 
     protected JSlider pitchSlider = new JSlider(SwingConstants.VERTICAL, -90, 90, 0);
 
+    private final AtomicInteger yaw = new AtomicInteger();
+    private final AtomicInteger pitch = new AtomicInteger();
+
+    protected AutoScaler yawScale = new AutoScaler(yaw, 360, 0, 6, 50, TimeUnit.MILLISECONDS, this::repaint);
+    protected AutoScaler pitchScale = new AutoScaler(pitch, 90, -90, 2, 50, TimeUnit.MILLISECONDS, this::repaint);
+
     public ExampleFrame() {
         Container pane = this.getContentPane();
         pane.setLayout(new BorderLayout());
 
-        pane.add(slider, BorderLayout.SOUTH);
+        // pane.add(slider, BorderLayout.SOUTH);
 
-        pane.add(pitchSlider, BorderLayout.EAST);
+        // pane.add(pitchSlider, BorderLayout.EAST);
 
         pane.add(new ExamplePanel(), BorderLayout.CENTER);
 
         this.setSize(400, 400);
 
         // so the slider changes are seen
-        slider.addChangeListener(e -> repaint());
-        pitchSlider.addChangeListener(e -> repaint());
+        // slider.addChangeListener(e -> repaint());
+        // pitchSlider.addChangeListener(e -> repaint());
+
+        this.yawScale.start();
+        this.pitchScale.start();
     }
 
     private class ExamplePanel extends JPanel {
@@ -41,14 +53,14 @@ public class ExampleFrame extends JFrame {
             g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
             // rendering
-            double heading = Math.toRadians(slider.getValue());
+            double heading = Math.toRadians(yaw.get());
             Matrix headingTransform = Matrix.builder(3, 3)
                     .putRow(Math.cos(heading), 0, -Math.sin(heading))
                     .putRow(0, 1, 0)
                     .putRow(Math.sin(heading), 0, Math.cos(heading))
                     .build();
 
-            double pitch = Math.toRadians(pitchSlider.getValue());
+            double pitch = Math.toRadians(ExampleFrame.this.pitch.get());
             Matrix pitchTransform = Matrix.builder(3, 3)
                     .putRow(1, 0, 0)
                     .putRow(0, Math.cos(pitch), Math.sin(pitch))
