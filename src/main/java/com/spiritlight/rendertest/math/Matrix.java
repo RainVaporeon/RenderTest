@@ -1,7 +1,6 @@
 package com.spiritlight.rendertest.math;
 
 
-import com.spiritlight.rendertest.math.exceptions.MatrixException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

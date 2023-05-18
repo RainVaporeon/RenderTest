@@ -26,8 +26,13 @@ public class MatrixElement implements Iterable<Double> {
         return elements.clone();
     }
 
-    // Returns a raw representation of the elements, should save some time
-    // doing internal operations so cloning array is not needed
+    /**
+     * Gets the backing array from this object.
+     * This does not clone the array and, instead directly takes
+     * the array and returns it. This should only be used if
+     * operations involving the array is by contract non-modifying.
+     * @return The array backing this object
+     */
     double[] elements() {
         return this.elements;
     }

@@ -1,7 +1,5 @@
 package com.spiritlight.rendertest.math.exceptions;
 
-import com.spiritlight.rendertest.math.Matrix;
-
 public class MatrixException extends CalculationException {
 
     public MatrixException(String s) {

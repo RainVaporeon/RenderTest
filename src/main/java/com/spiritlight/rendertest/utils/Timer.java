@@ -1,7 +1,5 @@
 package com.spiritlight.rendertest.utils;
 
-import java.util.concurrent.CompletableFuture;
-
 public class Timer {
 
     private final Runnable command;
